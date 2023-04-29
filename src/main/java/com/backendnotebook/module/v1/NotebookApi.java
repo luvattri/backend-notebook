@@ -6,10 +6,10 @@ import com.backendnotebook.common.models.Note;
 import com.backendnotebook.common.models.Notebook;
 import com.backendnotebook.common.models.UserInfo;
 import com.backendnotebook.common.rdo.BasicRdo;
-import com.backendnotebook.services.note.models.NoteQdo;
-import com.backendnotebook.services.note.models.NoteRdo;
-import com.backendnotebook.services.note.service.NoteService;
-import com.backendnotebook.services.note.models.NoteListRdo;
+import com.backendnotebook.services.notebook.models.NotebookListRdo;
+import com.backendnotebook.services.notebook.models.NotebookQdo;
+import com.backendnotebook.services.notebook.models.NotebookRdo;
+import com.backendnotebook.services.notebook.services.NotebookService;
 import com.backendnotebook.services.user.service.UserInfoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,44 +22,44 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(ApirUri.NOTE)
-public class NoteApi {
+@RequestMapping(ApirUri.NOTEBOOK)
+public class NotebookApi {
 
     @Autowired
     private UserInfoService userInfoService;
     @Autowired
-    private NoteService noteService;
+    private NotebookService notebookService;
 
     @PostMapping
     public ResponseEntity<BasicRdo> add(
-            @RequestBody @Valid NoteQdo noteQdo,
+            @RequestBody @Valid NotebookQdo noteQdo,
             @RequestParam(required = false, name = CommonConstants.TIMEZONE_OFFSET) Integer timezoneOffset,
             Authentication authentication) {
 
         String username = authentication.getName();
         UserInfo userInfo = userInfoService.findByName(username).orElse(null);
         noteQdo.id = 0;
-        NoteRdo noteRdo = noteService.add(noteQdo, userInfo, timezoneOffset);
-        BasicRdo<NoteRdo> basicRdo = new BasicRdo<>();
+        NotebookRdo noteRdo = notebookService.add(noteQdo, userInfo, timezoneOffset);
+        BasicRdo<NotebookRdo> basicRdo = new BasicRdo<>();
         basicRdo.data = noteRdo;
         return basicRdo.getResponse(CommonConstants.SUCESS, HttpStatus.CREATED, noteRdo);
     }
 
     @PutMapping
     public ResponseEntity<BasicRdo> update(
-            @RequestBody @Valid NoteQdo noteQdo,
+            @RequestBody @Valid NotebookQdo notebookQdo,
             @RequestParam(required = false, name = CommonConstants.TIMEZONE_OFFSET) Integer timezoneOffset,
             Authentication authentication) {
 
-        BasicRdo<NoteRdo> basicRdo = new BasicRdo<>();
+        BasicRdo<NotebookRdo> basicRdo = new BasicRdo<>();
 
         String username = authentication.getName();
         UserInfo userInfo = userInfoService.findByName(username).orElse(null);
         Boolean isPresent = true;
-        if (noteQdo.id == null) {
+        if (notebookQdo.id == null) {
             isPresent = false;
         } else {
-            Note note = noteService.findById(noteQdo.id, userInfo);
+            Notebook note = notebookService.findById(notebookQdo.id, userInfo);
             if (note == null) {
                 isPresent = false;
             }
@@ -67,8 +67,7 @@ public class NoteApi {
         if (!isPresent) {
             return basicRdo.getResponse(CommonConstants.BAD_REQUEST, HttpStatus.BAD_REQUEST, null);
         }
-
-        NoteRdo noteRdo = noteService.update(noteQdo, userInfo, timezoneOffset);
+        NotebookRdo noteRdo = notebookService.update(notebookQdo, userInfo, timezoneOffset);
         basicRdo.data = noteRdo;
         return basicRdo.getResponse(CommonConstants.SUCESS, HttpStatus.NO_CONTENT, noteRdo);
     }
@@ -83,12 +82,10 @@ public class NoteApi {
 
         String username = authentication.getName();
         UserInfo userInfo = userInfoService.findByName(username).orElse(null);
-        NoteListRdo noteListRdo = noteService.getList(pageNo, pageSize, userInfo, timezoneOffset,
-                notebookIds);
-        BasicRdo<List<NoteRdo>> basicRdo = new BasicRdo<>();
-        return basicRdo.getResponse(CommonConstants.SUCESS, HttpStatus.OK, noteListRdo.noteList,
+        NotebookListRdo noteListRdo = notebookService.getList(pageNo, pageSize, userInfo, timezoneOffset);
+        BasicRdo<List<NotebookRdo>> basicRdo = new BasicRdo<>();
+        return basicRdo.getResponse(CommonConstants.SUCESS, HttpStatus.OK, noteListRdo.notebookList,
                 noteListRdo.pageNumber, noteListRdo.pageSize, noteListRdo.total);
     }
-
 
 }
