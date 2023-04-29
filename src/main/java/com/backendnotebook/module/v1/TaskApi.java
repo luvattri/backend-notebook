@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(ApirUri.NOTE)
-public class NoteApi {
-
+@RequestMapping(ApirUri.TASK)
+public class TaskApi {
 }

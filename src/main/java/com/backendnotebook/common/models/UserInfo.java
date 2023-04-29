@@ -23,4 +23,5 @@ public class UserInfo {
     private String password;
     private String roles;
     private Date createdat;
+    private Date updatedat;
 }
